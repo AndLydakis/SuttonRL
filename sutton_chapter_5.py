@@ -266,14 +266,45 @@ class BlackJackMC:
                 valueNoAce[i, j] = np.max(Qvalues[i, j, 0, :])
                 actionNoAce[i, j] = np.argmax(Qvalues[i, j, 0, :])
         print(actionAce)
-        prettyPrint(valueAce, 'Optimal state value with usable Ace')
-        prettyPrint(valueNoAce, 'Optimal state value with no usable Ace')
-        prettyPrint(actionAce, 'Optimal policy with usable Ace', 'Action (0 Hit, 1 Stick)')
-        prettyPrint(actionNoAce, 'Optimal policy with no usable Ace', 'Action (0 Hit, 1 Stick)')
-        plt.show()
     
     def MCOnPolicyFirstVisit(self, ep, pp, dp):
-        pass
+        Qvalues = np.zeros((18, 10, 2))
+        Qcount = np.ones((18, 10, 2))
+        player_wins = 0 
+        dealer_wins = 0 
+        draws = 0
+        aceRet = np.zeros((18, 10))
+        aceRetCount = np.ones((18, 10))
+        noAceRet = np.zeros((18, 10))
+        noAceRetCount = np.ones((18, 10))
+        for i in range(ep):
+            # initial state
+            game = BlackJack(p_sum=random.randint(4, 21), 
+            p_aces=random.randint(0, 1), d_show=random.randint(1, 10))
+            game.init_action = random.randint(0, 1)
+            game.play(pp, dp)
+            if game.winner == 1:
+                player_wins += 1
+            elif game.winner == -1:
+                dealer_wins += 1
+            else:
+                draws+=1
+            print(game.status())
+            print("----------------")
+            if(game.p_aces==1):
+                aceRet[game.p_sum-4, game.d_show-1] += game.winner
+                aceRetCount += 1
+            else:
+                noAceRet[game.p_sum-4, game.d_show-1] += game.winner
+                noAceRetCount += 1
+        
+        
+        print(str(player_wins)+" Player Wins")
+        print(str(dealer_wins)+" Dealer Wins")
+        print(str(draws)+" Draws")
+        
+        print(aceRet)
+        print(noAceRet)
         
     def MCIncrementalOffPolicyEveryVisit(self, ep, pp, dp):
         pass
@@ -290,27 +321,8 @@ class BlackJackMC:
         dealer_policy[21] = 0
         
         
-        self.MCExploringStarts(100000, player_policy, dealer_policy)
+        # self.MCExploringStarts(100000, player_policy, dealer_policy)
+        self.MCOnPolicyFirstVisit(500000, player_policy, dealer_policy)
         
-        exit()
-        if method=="FP":
-            V = np.zeros(22)
-            for i in range(episodes):
-                game = BlackJack()
-                game.status()
-                while not game.isOver():
-                    if game.game_round(player_policy, dealer_policy) == 0:
-                        break
-                    game.status()
-                print(str(game.player.c_safe_sum())+" "+str(game.dealer.c_safe_sum())+" "+str(game.winner))
-                if game.winner==1:
-                    player_wins += 1
-                elif game.winner==-1:
-                    dealer_wins +=1
-                else:
-                    draws+=1
-                print("----------------")
-
-            
 if __name__ == "__main__":
     BlackJackMC(500000)
