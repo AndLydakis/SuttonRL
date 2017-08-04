@@ -124,8 +124,6 @@ class CliffWalking:
             self.sarsa(episodes, alpha, epsilon, gamma)
 
 
-
-
 if __name__ == '__main__':
     rewq = CliffWalking(True)
     rews = CliffWalking(False)
